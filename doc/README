@@ -50,7 +50,7 @@ Files
 bin/
 	makestat.sh	-- script to be run by cron, takes
 			   `tc -s -d class show ...' output and passes it to
-			   statsfill.py.
+			   statsfill.py.  See etc/cron.htbstat for an example
 	statsfill.py	-- takes `tc -s -d class show ...' from makestat.sh
 			   and fills RRD bases with stats. Also saves HTB
 			   classes (using pickle module) in RRD bases
@@ -94,6 +94,8 @@ etc/
 			   documentation, too.
 			   Configuration files are python commands lists
 			   actually.
+	apache2.htbstat -- example Apache2 config
+	cron.htbstat -- example cron script
 HTBstat/
 	HTBstat.py	-- HTBstat module.
 	__init__.py	-- __init__ for the module
