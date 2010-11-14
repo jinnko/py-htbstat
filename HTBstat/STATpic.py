@@ -89,13 +89,13 @@ class STATpic:
             self.__picpath = path
         return self.__picpath
 
-    def addhtbclass(self, htbclass, rrdone, rrdtwo):
+    def addhtbclass(self, htbclass, rrdone, rrdtwo, comment = ''):
         """Adds rrd bases to list of classes to be processed."""
         # mask ':' in filenames:
         rrdone = rrdone.replace(':', '\:')
         # rrdtwo can be not set:
         rrdtwo = rrdtwo and rrdtwo.replace(':', '\:')
-        self.__htbclasses.append([htbclass, rrdone, rrdtwo])
+        self.__htbclasses.append([htbclass, rrdone, rrdtwo, comment])
         return
 
     def addtimerange(self, start, end=0):
@@ -162,7 +162,7 @@ class STATpic:
 
                     picture = str(timenum)+'-'+str(num)+'-'+picname
 
-                    (htb, rrdone, rrdtwo) = self.__htbclasses[num]
+                    (htb, rrdone, rrdtwo, comment) = self.__htbclasses[num]
 
                     if rrdone == None:
                         rrdone = rrdtwo
@@ -185,7 +185,7 @@ class STATpic:
                         if self.__pkts_forcelim == 1: grapharg.extend([ '-r' ])
 
                         grapharg.extend([ '-v pkts per sec',
-                            '-t class '+str(htb.clid())+' -- packects ('+self.__CF+')',
+                            '-t class '+str(htb.clid())+' - '+comment+' - packects ('+self.__CF+')',
                             'DEF:pkts='+rrdone+':packets:'+self.__CF, 
                             'DEF:drop='+rrdone+':dropped:'+self.__CF, 
                             'DEF:lend='+rrdone+':lended:'+self.__CF,
@@ -198,7 +198,7 @@ class STATpic:
                             'LINE1:borr#5555CC:borrow' ])
                     elif unit == 'tokens':
                         grapharg.extend([ '-v toks per sec',
-                            '-t class '+str(htb.clid())+' -- tokens ('+self.__CF+')',
+                            '-t class '+str(htb.clid())+' - '+comment+' - tokens ('+self.__CF+')',
                             'DEF:toks='+rrdone+':tokens:'+self.__CF, 
                             'DEF:ctoks='+rrdone+':ctokens:'+self.__CF, 
                             'HRULE:0#000000',
@@ -207,7 +207,7 @@ class STATpic:
                     else:        # if bytes:
                         grapharg.extend([ '-v bits per sec',
                             '-u '+str(self.__ceil_upperlim * htb.ceil()),
-                            '-t class '+str(htb.clid())+' -- bps ('+self.__CF+')' ])
+                            '-t class '+str(htb.clid())+' - '+comment+' - bps ('+self.__CF+')' ])
                         #
                         # force upper limit, if needed:
                         if self.__ceil_forcelim == 1: grapharg.extend([ '-r' ])

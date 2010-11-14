@@ -30,8 +30,8 @@ import cgitb; cgitb.enable()
 
 #
 # Page title and header (will appear on HTML page):
-pagetitle = 'HTB Statistic:'
-pageheader = 'Detailed HTB Statistic:'
+pagetitle = 'HTB Statistics'
+pageheader = 'Detailed HTB Statistics'
 
 #
 # INTERFACES.
@@ -57,14 +57,14 @@ pageheader = 'Detailed HTB Statistic:'
 # It's just a names, to manage cgi script and html output.
 #
 # Device name may be any reasonable string:
-devone = 'clients0'
-devtwo = 'world0'
+devone = 'eth1'
+#devtwo = ''
 #
 # Interfaces names (will appear on HTML page):
 # devonename = 'Local Network'
 # devtwoname = 'To Internet'
-devonename = 'Inbound traffic'
-devtwoname = 'Outbound traffic'
+devonename = 'WAN traffic'
+#devtwoname = 'Other traffic'
 
 
 # RRD bases pathes.
@@ -72,8 +72,8 @@ devtwoname = 'Outbound traffic'
 # Must be readable for apache user.
 # rrdONEpath = '/var/spool/htbstat/' + devone
 # rrdTWOpath = '/var/spool/htbstat/' + devtwo
-rrdONEpath = '/var/www/rrdbases/htbstat/%s' % devone
-rrdTWOpath = '/var/www/rrdbases/htbstat/%s' % devtwo
+rrdONEpath = '/var/lib/htbstat'
+#rrdTWOpath = '/var/lib/htbstat/rrdbases/%s' % devtwo
 
 # Path where generated pictures will be put to (check permissions!):
 picpath = '/var/www/html/htb/pictures'
@@ -82,10 +82,10 @@ picpath = '/var/www/html/htb/pictures'
 wwwpicpath = '/htb/pictures'
 
 # Default class to be displayed, when none specified:
-defclid = '1:5'
+defclid = '1:4'
 
 # This is you root class (change it if you need):
-defroot = '1:1'
+defroot = '1:2'
 
 
 ##########################################################

@@ -1,0 +1,63 @@
+/* vim:set ts=4 sw=4 sts=4 expandtab: */
+body {
+    font-family: Arial, helvetica, sans-serif;
+}
+form {
+    margin: 0;
+    padding: 0;
+}
+h1 {
+    margin: 0.5em auto 0 auto;
+}
+img {
+    float: left;
+    margin: 10px 1% 0 10px;
+    width: 47%;
+    max-width: 597px;
+}
+pre {
+    text-align: left;
+}
+select {
+    padding: 5px 10px;
+}
+span.term {
+    font-family: 'Fixed', 'Courier New';
+}
+span.rcsid {
+    font-family: 'Fixed', 'Courier New';
+    font-size: 70%%;
+}
+td, th {
+    vertical-align: top;
+}
+th {
+    text-align: left;
+}
+
+/**
+ * IDs
+ */
+#body {
+    text-align: center;
+}
+/**
+ * CLASSES
+ */
+.form {
+    border: 1px solid gray;
+    margin: 10px auto;
+    -moz-border-radius: 12px;
+    -webkit-border-radius: 12px;
+}
+.options {
+    border: 1px solid #dedede;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+.options th {
+    text-align: center;
+}
+.form td, .form th {
+    padding: 5px 15px;
+}

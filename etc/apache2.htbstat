@@ -1,0 +1,6 @@
+<Directory /path/to/py-htbstats/cgi-bin/>
+Options +ExecCGI
+SetEnv PYTHONPATH /path/to/py-htbstat
+AddHandler cgi-script .py
+</Directory>
+Alias /htb/ /path/to/py-htbstat/cgi-bin/

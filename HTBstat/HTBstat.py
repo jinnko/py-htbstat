@@ -33,7 +33,7 @@ class HTBstat:
 
     def __init__(self, line):
         """Creates HTB class from an input line,
-        which should be taken from `tc class show ...' command."""
+        which should be taken from `tc class show dev <dev>' command."""
 
         line = line.lower()
 
@@ -43,8 +43,8 @@ class HTBstat:
         self.__kidsceil = 0
 
         ro = re.compile('root')
-        cl = re.compile('class htb ([0-9a-f]+:[0-9a-f]+) ')
-        pa = re.compile('parent ([0-9a-f]+:[0-9a-f]+) ')
+        cl = re.compile('class ... ([0-9a-f]+:[0-9a-f]*) ')
+        pa = re.compile('parent ([0-9a-f]+:[0-9a-f]*) ')
         ra = re.compile('rate ([0-9]+)([km]{0,1})(bps|bit)')
         ce = re.compile('ceil ([0-9]+)([km]{0,1})(bps|bit)')
         by = re.compile('sent ([0-9]+) bytes')
@@ -76,60 +76,79 @@ class HTBstat:
             #
             # self.__rate:
             rate = ra.search(line)
-            self.__rate = int(rate.group(1))
-            mult = rate.group(2)
-            suff = rate.group(3)
-            #
-            if suff == 'bit':
-                if mult == 'k':
-                    self.__rate *= 1024
-                elif mult == 'm':
-                    self.__rate *= 1048576  # 1024 * 1024
-            #
-            elif suff == 'bps':
-                self.__rate *= 8
-                if mult == 'k':
-                    self.__rate *= 1024
-                elif mult == 'm':
-                    self.__rate *= 1048576  # 1024 * 1024
+            if rate:
+                self.__rate = int(rate.group(1))
+                mult = rate.group(2)
+                suff = rate.group(3)
+                #
+                if suff == 'bit':
+                    if mult == 'k':
+                        self.__rate *= 1024
+                    elif mult == 'm':
+                        self.__rate *= 1048576  # 1024 * 1024
+                #
+                elif suff == 'bps':
+                    self.__rate *= 8
+                    if mult == 'k':
+                        self.__rate *= 1024
+                    elif mult == 'm':
+                        self.__rate *= 1048576  # 1024 * 1024
+            else:
+                self.__rate = 0
             #
             # self.__ceil:
             ceil = ce.search(line)
-            self.__ceil = int(ceil.group(1))
-            mult = ceil.group(2)
-            suff = ceil.group(3)
+            if ceil:
+                self.__ceil = int(ceil.group(1))
+                mult = ceil.group(2)
+                suff = ceil.group(3)
+            else:
+                self.__ceil = 0
             #
-            if suff == 'bit':
-                if mult == 'k':
-                    self.__ceil *= 1024
-                elif mult == 'm':
-                    self.__ceil *= 1048576  # 1024 * 1024
-            #
-            elif suff == 'bps':
-                self.__ceil *= 8
-                if mult == 'k':
-                    self.__ceil *= 1024
-                elif mult == 'm':
-                    self.__ceil *= 1048576  # 1024 * 1024
+            if rate > 0:
+                if suff == 'bit':
+                    if mult == 'k':
+                        self.__ceil *= 1024
+                    elif mult == 'm':
+                        self.__ceil *= 1048576  # 1024 * 1024
+                #
+                elif suff == 'bps':
+                    self.__ceil *= 8
+                    if mult == 'k':
+                        self.__ceil *= 1024
+                    elif mult == 'm':
+                        self.__ceil *= 1048576  # 1024 * 1024
             #
             # self.__burst:
             burst = bu.search(line)
-            suff = burst.group(2)
-            if suff == 'kb':
-                self.__burst = 1024 * int(burst.group(1))
-            elif suff == 'mb':
-                self.__burst = 1024 * 1024 * int(burst.group(1))
+            if burst:
+                suff = burst.group(2)
+                if suff == 'kb':
+                    self.__burst = 1024 * int(burst.group(1))
+                elif suff == 'mb':
+                    self.__burst = 1024 * 1024 * int(burst.group(1))
+                else:
+                    self.__burst = int(burst.group(1))
             else:
-                self.__burst = int(burst.group(1))
+                self.__burst = 0
             # self.__cburst:
             cburst = cb.search(line)
-            self.__cburst = int(cburst.group(1))
+            if cburst:
+                self.__cburst = int(cburst.group(1))
+            else:
+                self.__cburst = 0
             # self.__bytes:
             bytes = by.search(line)
-            self.__bytes = int(bytes.group(1))
+            if bytes:
+                self.__bytes = int(bytes.group(1))
+            else:
+                self.__bytes = 0
             # self.__packets:
             packets = pk.search(line)
-            self.__packets = int(packets.group(1))
+            if packets:
+                self.__packets = int(packets.group(1))
+            else:
+                self.__packets = 0
             # self.__dropped:
             drop = dr.search(line)
             self.__dropped = int(drop.group(1))
@@ -138,16 +157,28 @@ class HTBstat:
             self.__overlimits = int(ovlim.group(1))
             # self.__lended:
             lend = le.search(line)
-            self.__lended = int(lend.group(1))
+            if lend:
+                self.__lended = int(lend.group(1))
+            else:
+                self.__lended = 0
             # self.__borrowed:
             borr = bo.search(line)
-            self.__borrowed = int(borr.group(1))
+            if borr:
+                self.__borrowed = int(borr.group(1))
+            else:
+                self.__borrowed = 0
             # self.__tokens:
             tok = to.search(line)
-	    self.__tokens = int(tok.group(1))
+            if tok:
+                self.__tokens = int(tok.group(1))
+            else:
+                self.__tokens = 0
             # self.__ctokens:
             ctok = ct.search(line)
-            self.__ctokens = int(ctok.group(1))
+            if ctok:
+                self.__ctokens = int(ctok.group(1))
+            else:
+                self.__ctokens = 0
             # self.__backlog:
             blog = ba.search(line)
             if not blog:

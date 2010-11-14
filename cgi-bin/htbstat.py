@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
-#
 # $Id: htbstat.py,v 1.11 2008/01/24 09:11:36 dima Exp $
+# vim:set ts=4 sw=4 sts=4 expandtab:
 #
 #
 # Copyright (c) 2005 Dmytro O. Redchuk
@@ -45,6 +45,30 @@ remaddr = os.getenv("REMOTE_ADDR")
 
 ######################################################################
 
+print "Content-Type: text/html"     # HTML is following
+print                               # blank line, end of headers
+
+print '<html>\n<head>\n<title>%s</title>' % pagetitle
+print """
+ <style type="text/css">
+    pre    {
+        text-align: left;
+    }
+    span.term {
+        font-family: 'Fixed', 'Courier New';
+    }
+    span.rcsid {
+        font-family: 'Fixed', 'Courier New';
+        font-size: 70%%;
+    }
+ </style>
+ <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+"""
+
+######################################################################
+
 keys = { 'parent': 'Parent is ',
      'classid': 'Class ID is ' }
 
@@ -84,10 +108,27 @@ for oldpic in oldpics:
 if devone != disabled:
     irrdlist = glob.glob('%s/*.rrd' % rrdONEpath)
     irrdhash = {}
+    irrdcomment = {}
 
     for it in irrdlist:
         namepat = re.search('([0-9]+:[0-9]+).rrd', it)
-        namestr = namepat.group(1)
+        if namepat:
+            namestr = namepat.group(1)
+
+            if os.path.exists('/etc/htb'):
+                # Connect to htbinit to get comments for the graphs
+                htbinitpat = re.search('(1:([0-9]{2,}))', namestr)
+                if htbinitpat:
+                    tcclass = htbinitpat.group(2)
+                    htbinitlist = glob.glob('/etc/htb/%s-*:%s*' % (devone, tcclass))
+                    if len(htbinitlist) == 1:
+                        commentpat = re.search('[0-9]+:[0-9]+:%s\.(.*)' % tcclass, htbinitlist[0])
+                        htbcomment = commentpat.group(1)
+
+                        irrdcomment[namestr] = htbcomment
+        else:
+            namestr = None
+
         irrdhash[namestr] = namestr
 
     iclfiles = glob.glob('%s/*.pickle' % rrdONEpath)
@@ -269,7 +310,7 @@ elif key == 'parent':
                     rrdTWOfile = '%s/%s.rrd' % ( rrdTWOpath, htb.clid() )
                 else:
                     rrdTWOfile = None
-                statpic.addhtbclass(htb, rrdONEfile, rrdTWOfile)
+                statpic.addhtbclass(htb, rrdONEfile, rrdTWOfile, irrdcomment[htb.clid()])
 else:
     for cl in clid:
         htb = getbyclid(classfilelist, cl)
@@ -291,84 +332,69 @@ else:
 #
 #
 
-print "Content-Type: text/html"     # HTML is following
-print                               # blank line, end of headers
-
-print '<HTML>\n<HEAD>\n<TITLE>%s</TITLE>' % pagetitle
 print """
- <!-- LINK rel="stylesheet" type="text/css" href="/admin.css" -->
- <STYLE type="text/css">
-     PRE    {
-        text-align: left;
-    }
-     SPAN.term {
-             font-family: 'Fixed', 'Courier New';
-         }
-    SPAN.rcsid {
-        font-family: 'Fixed', 'Courier New';
-        font-size: 70%%;
-    }
- </STYLE>
-<BODY>
-<TABLE border="0" align="center">
-<TR><TD align="center">
-<H1>%s</H1>
-<TABLE border="1">
-<FORM>
-<TR><TH>Select source:
-    <TH>What to display:
-<TR><TD>
-
-<TABLE border="1">
-<TR>
+<div id="body">
+    <h1>%s</h1>
+    <form>
+    <table class="form"><tr>
+        <th>Select source:</th>
+        <th>What to display:</th>
+    </tr><tr>
+        <td>
+            <table class="options">
 """ % pageheader
 
 
 # if both are enabled:
 if disabled not in (devone, devtwo):
     if dev == devone:
-        print "<TR>"
-        print """<TD colspan="2">
-        <INPUT type="radio" name="dev" value="%s" checked>%s
-        """ % (devone, devonename)
+        print "<tr>"
+        print """<th colspan="2">
+        <input type="radio" name="dev" value="%s" checked>%s
+        </th>""" % (devone, devonename)
 
         if devtwo != disabled:
-            print """<TD colspan="2">
-            <INPUT type="radio" name="dev" value="%s">%s
-            """ % (devtwo, devtwoname)
+            print """<th colspan="2">
+            <input type="radio" name="dev" value="%s">%s
+            </th>""" % (devtwo, devtwoname)
+
+        print "</tr>"
 
     elif dev == devtwo:
-        print "<TR>"
+        print "<tr>"
         if devone != disabled:
-            print """<TD colspan="2">
-            <INPUT type="radio" name="dev" value="%s">%s
-            """ % (devone, devonename)
+            print """<th colspan="2">
+            <input type="radio" name="dev" value="%s">%s
+            </th>""" % (devone, devonename)
 
-        print """<TD colspan="2">
-        <INPUT type="radio" name="dev" value="%s" checked>%s
-        """ % (devtwo, devtwoname)
+        print """<th colspan="2">
+            <input type="radio" name="dev" value="%s" checked>%s
+            </th>""" % (devtwo, devtwoname)
+
+        print "</tr>"
 else:
+    print "<tr><th colspan='2'>"
     if dev == devone:
         print devonename
     else:
         print devtwoname
 
-print '<TR>'
+print '</th></tr>'
 
 
 if devone != disabled:
     print '<TD>%s' % getSelect(keys, 'ikey', ikey)
-    print '<TD>%s' % getSelect(irrdhash, 'iclid', clid, 1, 10, \
+    print '<TD>%s' % getSelect(irrdhash, 'iclid', clid, 1, 6, \
                         ' Use Control key to select multiple classes. ')
 
 if devtwo != disabled:
     print '<TD>%s' % getSelect(keys, 'okey', okey)
-    print '<TD>%s' % getSelect(orrdhash, 'oclid', clid, 1, 10, \
+    print '<TD>%s' % getSelect(orrdhash, 'oclid', clid, 1, 6, \
                         ' Use Control key to select multiple classes. ')
 
 print '</TABLE>'
 
-print '<TD align="center"><TABLE border="1">'
+print '<TD align="center"><table class="options">'
 
 print '<TR><TD>%s' % getSelect(units, 'unit', unit, 1, 3, \
                         ' Use Control key to select multiple entries. ')
@@ -387,7 +413,7 @@ else:
 
 print """
 &nbsp;Show <SPAN class="term">rate</SPAN>
-<BR>and <SPAN class="term">ceil</SPAN> values &nbsp;
+and <SPAN class="term">ceil</SPAN> values &nbsp;
 <TR><TD align="right">Upper limit:<TT>
     <INPUT type="text" size="3" maxsize="3" name="cupperlim"
         value="%s" align="right">&nbsp;x&nbsp;ceil
@@ -411,7 +437,7 @@ print """
 
 
 print '<TD align="center">CF: %s' % \
-			getSelect(CFs, 'CF', CF, 0, 0, "rrd's Consolidation Function")
+            getSelect(CFs, 'CF', CF, 0, 0, "rrd's Consolidation Function")
 
 
 print """
@@ -468,8 +494,9 @@ if len(piclist) == 0:
     print '<CENTER><B>Nothing to draw.</B></CENTER>'
 else:
     for pic in piclist:
-        print '<IMG src="%s/%s"><BR>' % ( wwwpicpath, pic )
+        print '<IMG src="%s/%s">' % ( wwwpicpath, pic )
 
+print '<br style="clear: both" />'
 # dump class only `if':
 if key == 'classid' or not key:
     print '<TR><TD align="center">'
