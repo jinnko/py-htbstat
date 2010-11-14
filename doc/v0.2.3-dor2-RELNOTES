@@ -1,0 +1,29 @@
+v0.2.3-dor2:
+-----------
+Added consolidation function selection field to cgi script.
+Fixed some issues:
+ - renamed "irate" and "iceil" (to "rate" and "ceil") on pictures
+ - cleaned the code a bit -- changed those weird "+" in string
+   concatenations, and updated credentials.
+
+v0.2.3-dor1:
+-----------
+Now "backlog" data in "tc class show" dump may be in form of "backlog Xb Yp"
+(it was "backlog Xp" previously). Fixed to provide limited support. ("Bytes"
+data ignored now. Does anybody need it?) And fixed packet rate limit in
+htbstat.py (cgi script) -- i dont actually know why it worked, sorry :-).
+
+
+v0.2.2-dor1:
+------------
+In prev. versions there were wrong data (8 times greater) stored as rate and
+ceil values into RRD database. So, after installing this version, prev. rate
+and ceil values will appear too little. All next updates will store correct
+values.
+
+
+v0.2.1:
+-------
+If you "upgrade" to v0.2.1 from any previous version, you should rename old
+bases -- new ones will be named with full classid (in form of `xxxx:xxxx`).
+

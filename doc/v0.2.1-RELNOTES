@@ -1,0 +1,4 @@
+v0.2.1:
+-------
+If you "upgrade" to v0.2.1 from any previous version, you should rename old
+bases -- new ones will be named with full classid (in form of `xxxx:xxxx`).

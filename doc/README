@@ -1,0 +1,175 @@
+#
+# py-htbstat README file
+# $Revision: 1.5 $
+#
+# Copyright (c) 2005 Dmytro O. Redchuk
+# Copyright (c) 2005 VOLZ Llc
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+
+
+Introduction
+============
+
+py-htbstat is a tool set which helps to collect, monitor and analyze htb
+classes statistic.
+
+HTB statistic data are captured, processed and saved into RRD databases
+along with HTB classes dumps. This statistic data then may be displayed by
+CGI scripts and processed further by some checkers.
+
+py-htbstat is a small set of scripts actually. Some part of functionality
+was separated into a python module, HTBstat.
+
+py-htbstat requires py-rrdtool (http://www.nongnu.org/py-rrdtool/,
+http://www2.ldc.net/~dor/py-rrdtool-0.2.1.spec)
+
+Below, in "Files" section, there are some descriptions and explanations.
+
+And far below, in "Where to use" section you'll find some additional notes.
+
+
+
+Files
+=====
+
+bin/
+	makestat.sh	-- script to be run by cron, takes
+			   `tc -s -d class show ...' output and passes it to
+			   statsfill.py.
+	statsfill.py	-- takes `tc -s -d class show ...' from makestat.sh
+			   and fills RRD bases with stats. Also saves HTB
+			   classes (using pickle module) in RRD bases
+			   directory. Creates RRD bases on the fly.
+			   NOTE, that these two are sample scripts only and
+			   doesn't exist in rpm file.
+cgi-bin/
+	dumpclass.py	-- small CGI script which "dumps" HTB class pickled
+			   by statsfill.py to browser screen. Also, if run
+			   in box where your classes are configured, dumps
+			   required class "in real time".
+	htbcheck.py	-- this CGI script checks HTB classes hierarchy and
+			   displays warning if some conditions are unmet
+			   (from lighter one to the worst one imho):
+			   sum of children's ceil higher than parent's ceil,
+			   sum of children's rate higher than parent's rate,
+			   sum of children's rate higher than parent's ceil.
+	htbstat.py	-- 'main window' which allows to select (with
+			   multiple selection possibility) classes,
+			   timeranges, units, and draws a lot of pictures
+			   from data stored in RRD bases. Allows to select
+			   by class id or parent class id. For example, you
+			   can select classes 33 (x:33 here) 48, 1049 etc.
+			   and enjoy pictures for these, or you can view
+			   pictures for classes, which parents are 21, 557,
+			   2063, 3fa0 etc.
+	htbstatpic.py	-- script, which accepts the same parameters, as `htbstat.py'
+			   but returns a single picture (for the first class, if
+			   multiple requested), can be included as <IMG src=...>
+			   in other pages.
+doc/
+	LICENSE		-- GNU GPL.
+	README		-- this file.
+etc/
+	functions	-- common functions, which are too uncommon to be
+			   included into the module :-)
+			   "Called" by htbstat.cgi.
+	htbstat.cgi	-- config file for CGI scripts. "Called" by
+			   htbstat.conf.
+	htbstat.conf	-- 'main' config file, contains some kind of
+			   documentation, too.
+			   Configuration files are python commands lists
+			   actually.
+HTBstat/
+	HTBstat.py	-- HTBstat module.
+	__init__.py	-- __init__ for the module
+	STATpic.py	-- this is a "picture module", contains a class
+			   which instantiates "HTB pictures" objects.
+py-htbstat-0.2.1.spec	-- attempt to provide you with a spec for rpm
+			   building :-)
+			   (I use ALT Linux, http://www.altlinux.org/)
+
+
+
+Installation
+============
+
+Place files to appropriate locations :-)
+
+RPM install should work.
+
+
+
+Where to use
+============
+
+This "scripts set" was designed to be used on linux bridges (I like linux
+bridges and HTB on linux bridges:-) and you'll understand this having read
+configuration files.
+
+Configuration suppose you may have one or two interfaces with HTB classes
+hierarchies configured: one interface is a common situation on routers,
+configuration with two interfaces designed for bridge or router with
+symmetrical HTB hierarchies -- in this case htbstat.py will draw you both
+"incoming" and "outgoing" traffic on one picture.
+
+And it is not of means to be used on boxes with two interfaces with different
+hierarchies -- in this case you'll better create two configuration files sets
+and scripts sets.
+
+
+
+What to read further
+====================
+
+Be sure to read carefully configuration files -- there's a lot of
+explanations. htbstat.conf then htbstat.cgi. And I tried to comment all
+scripts and module files (however this work is not finished yet).
+
+
+
+Known issues
+============
+
+Sometimes you may refresh browser page right at the moment when rrd bases are
+being updated -- you'll see error message. Refresh the page again.
+
+
+
+TODO
+====
+
+Would be nice to add to STATpic a possibility to summarize counters -- to
+see sum of clients rates at one graph. Some improvements may be added to
+HTBstat (STATpic) like specifying picture dimensions in config file and
+passing as arguments to STATpic etc. And there can be a lot of analyzing
+enhancements... Any other ideas, please?
+
+
+
+Author(s)
+=========
+
+Dmytro O. Redchuk <dmytro@redchuk.org.ua>, with a great help of all
+VOLZ/LDC team.
+
+Please, do not blame me to much -- this is my the first Python code piece :-)
+
+Actually, I have been working (and I am working further) on another
+code -- HTB configurator -- and this monitoring-only scripts are much like
+side effect :)
+

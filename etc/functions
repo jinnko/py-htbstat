@@ -1,0 +1,183 @@
+#
+#
+# $Id: functions,v 1.3 2008/01/16 10:27:46 dima Exp $
+#
+#
+# Copyright (c) 2005 Dmytro O. Redchuk
+# Copyright (c) 2005 VOLZ Llc
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+#
+# An "internal" variable. To distinguish between unset interface
+# and unset cgi variable (at first page visit for ex.):
+disabled = 'undef'
+
+#
+def configError(str):
+    print "Content-Type: text/html"
+    print
+    print '<H1> Config error:</H1> %s' % str
+
+#
+# Devices sanity check:
+#
+import sys
+
+try:
+    if devone == '':
+        configError('Variable <TT><B>devone</B></TT> ' \
+                    + 'can\'t be an empty string.')
+        sys.exit()
+    #
+    # else devone defined properly.
+    # try rrdONEpath and devtwo variables:
+    else:
+        # try rrdONEpath:
+        try:
+            if rrdONEpath == '':
+                configError('Variable ' \
+                            + '<TT><B>rrdONEpath</B></TT> ' \
+                            + 'can\'t be an empty string.')
+                sys.exit()
+        # devone is good but rrdONEpath undefined:
+        except NameError:
+            configError('You <EM>must</EM> define ' \
+                        + '<TT><B>rrdONEpath</B></TT> variable, ' \
+                        + 'if <TT><B>devone</B></TT> set.')
+            sys.exit()
+        # try devtwo:
+        try:
+            if devtwo == '':
+                configError('Variable <TT><B>devtwo</B></TT> '\
+                            + 'can\'t be an empty string.')
+                sys.exit()
+            #
+            # else both was defined properly.
+            # devtwo is good, try rrdTWOpath now:
+            try:
+                if rrdTWOpath == '':
+                    configError('Variable ' \
+                                + '<TT><B>rrdTWOpath</B></TT> ' \
+                                + 'can\'t be an empty string.')
+                    sys.exit()
+            except NameError:
+                configError('You <EM>must</EM> define ' \
+                        + '<TT><B>rrdTWOpath</B></TT> variable, ' \
+                        + 'if <TT><B>devtwo</B></TT> set.')
+                sys.exit()
+        #
+        # devone is good but devtwo isn't:
+        except NameError:
+            # just disable it (rrdTWOpath doesn't matter):
+            devtwo = disabled
+#
+# devone is undefined, test devtwo now:
+except NameError:
+    try:
+        if devtwo == '':
+            configError('Variable <TT><B>devtwo</B></TT> '
+                        + 'can\'t be an empty string.')
+            sys.exit()
+        # devone undefined, but devtwo is defined properly.
+        else:
+            # just disable devone (rrdONEpath doesn't matter):
+            devone = disabled
+            # try rrdTWOpath now:
+            try:
+                if rrdTWOpath == '':
+                    configError('Variable ' \
+                                + '<TT><B>rrdTWOpath</B></TT> ' \
+                                + 'can\'t be an empty string.')
+                    sys.exit()
+            except NameError:
+                configError('You <EM>must</EM> define ' \
+                        + '<TT><B>rrdTWOpath</B></TT> variable, ' \
+                        + 'if <TT><B>devtwo</B></TT> set.')
+                sys.exit()
+    # none of them was defined:
+    except NameError:
+        configError('Stupid joke.<BR>It\'s not funny.')
+        sys.exit()
+#
+# Devices and pathes are ok now.
+#
+
+#
+# TODO: we may check if pathes exist at this point.
+#
+
+#
+# Some CGI functions:
+#
+def getbyclid(pickledlist, clid):
+    for pickled in pickledlist:
+        if pickled.clid() == clid:
+            return pickled
+    return None
+
+#
+def getSelect(itemhash, listname, selected, multi=0, size=None, title=None):
+    retvalue = []
+
+    if not title:
+        title = listname
+    if multi != 0:
+        setsize = size and ('size="%s"' % size) or 'size="3"'
+        multiple = 'multiple %s' % setsize
+    else:
+        multiple = ''
+    #
+
+    retvalue.append (
+            '<SELECT name="%s" %s title="%s">' % (listname, multiple, title)
+        )
+
+    sortedkeys = itemhash.keys()
+    sortedkeys.sort()
+    for k in sortedkeys:
+        if isinstance(selected, list):
+            for s in selected:
+                if s == k:
+                    retvalue.append (
+                            '\t<OPTION value="%s" SELECTED>%s' % (k, itemhash[k])
+                        )
+                    break
+            else:
+                retvalue.append (
+                        '\t<OPTION value="%s">%s' % (k, itemhash[k])
+                    )
+
+        else:
+            if k == selected:
+                retvalue.append (
+                        '\t<OPTION value="%s" SELECTED>%s' % (k, itemhash[k])
+                    )
+            else:
+                retvalue.append (
+                        '\t<OPTION value="%s">%s' % (k, itemhash[k])
+                    )
+
+    retvalue.append ( '</SELECT>' )
+
+    return '\n'.join(retvalue)
+
+
+
+def printSelect(itemhash, listname, selected, multi=0, size=None, title=None):
+    print getSelect(itemhash, listname, selected, multi, size, title)
+
+######################################################################

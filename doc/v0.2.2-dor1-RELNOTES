@@ -1,0 +1,13 @@
+v0.2.2-dor1:
+------------
+In prev. versions there were wrong data (8 times greater) stored as rate and
+ceil values into RRD database. So, after installing this version, prev. rate
+and ceil values will appear too little. All next updates will store correct
+values.
+
+
+v0.2.1:
+-------
+If you "upgrade" to v0.2.1 from any previous version, you should rename old
+bases -- new ones will be named with full classid (in form of `xxxx:xxxx`).
+
