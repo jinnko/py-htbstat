@@ -511,11 +511,11 @@ if key == 'classid' or not key:
 print """
 </TABLE>
 <HR>
-<TABLE border="0" width="90%" align="center">
+<TABLE border="0" width="90%%" align="center">
 <TR><TD>
 <SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="mailto:%s@%s.%s.%s">Dmytro O. Redchuk</A></SPAN><BR>
 <SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="http://www.volz.ua/">VOLZ Llc</A></SPAN><BR>
-""" % ('dmytro', 'redchuck', 'org', 'ua')
+""" % ("dmytro", "redchuck", "org", "ua")
 
 # to get RCS Id:-)
 sample = iclasses[0]
