@@ -282,9 +282,9 @@ print """
 <HR>
 <TABLE border="0" width="90%" align="center">
 <TR><TD>
-<SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="mailto:dmytro@redchuk.org.ua">Dmytro O. Redchuk</A></SPAN><BR>
+<SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="mailto:%s@%s.%s.%s">Dmytro O. Redchuk</A></SPAN><BR>
 <SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="http://www.volz.ua/">VOLZ Llc</A></SPAN><BR>
-"""
+""" % ('dmytro', 'redchuck', 'org', 'ua')
 
 # print '<!-- '
 print """

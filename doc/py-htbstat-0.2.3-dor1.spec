@@ -6,7 +6,7 @@ Summary: Python module HTBstat and (CGI and shell) scripts to collect and analyz
 License: GPL
 Group: Networking/Tools
 Requires: python-base py-rrdtool
-Packager: Dmytro O. Redchuk <dor@ldc.net>
+Packager: Dmytro O. Redchuk <dor(at)ldc.net>
 Url: http://www2.ldc.net/~dor
 
 Source: %{name}-%{version}.src.tar.bz2
@@ -56,26 +56,26 @@ cp -r doc/* $RPM_BUILD_ROOT/usr/share/doc/%{name}-%{version}
 /var/www/cgi-bin/*
 
 %changelog
-* Tue Jan 15 2008 Dmytro O. Redchuk <dor@ldc.net> 0.2.3-dor1
+* Tue Jan 15 2008 Dmytro O. Redchuk <dor(at)ldc.net> 0.2.3-dor1
 - Fixed `re's in HTBstat.py to accept `backlog [0-9]b [0-9]p' format
   (takes into account packets only though).
 - Fixed `kpps' input field interpretation.
 
-* Mon Oct 09 2006 Dmytro O. Redchuk <dor@ldc.net> 0.2.2-dor1
+* Mon Oct 09 2006 Dmytro O. Redchuk <dor(at)ldc.net> 0.2.2-dor1
 - Changed all (class and scripts) to deal with bits, not kbits
 - Fixed `re's in HTBstat.py to accept different `tc -s class' output formats
 - rate and ceil values were stored in kbits not bits -- fixed
 - Some other fixes for bugs in one-device mode
 
-* Wed Sep 27 2006 Dmytro O. Redchuk <dor@ldc.net> 0.2.1-dor3
+* Wed Sep 27 2006 Dmytro O. Redchuk <dor(at)ldc.net> 0.2.1-dor3
 - Made it possible to use xxxx:xxxx classids.
 
-* Fri Dec 16 2005 Dmytro O. Redchuk <dor@ldc.net> 0.2-dor1
+* Fri Dec 16 2005 Dmytro O. Redchuk <dor(at)ldc.net> 0.2-dor1
 - Changed method of setting graph upper limit
   (was: rrdtool's LIMIT, now: -u [-r])
 - Added wwwpicpath to cgi config file.
 - Added htbstatpic.py for getting single picture (png format).
 
-* Thu Mar 24 2005 Dmytro O. Redchuk <dor@ldc.net> 0.1-dor1
+* Thu Mar 24 2005 Dmytro O. Redchuk <dor(at)ldc.net> 0.1-dor1
 - Initial build.
 
