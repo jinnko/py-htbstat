@@ -22,8 +22,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
-rcsid = '$Id: htbstatpic.py,v 1.5 2008/01/16 10:27:46 dima Exp $'
-
 import cgi
 
 import rrdtool
@@ -76,7 +74,7 @@ if devone != disabled:
     irrdhash = {}
 
     for it in irrdlist:
-        namepat = re.search('([0-9]+).rrd', it)
+        namepat = re.search('([a-f0-9]+).rrd', it)
         namestr = namepat.group(1)
         irrdhash[namestr] = namestr
 
@@ -94,7 +92,7 @@ if devtwo != disabled:
     orrdhash = {}
     
     for it in orrdlist:
-        namepat = re.search('([0-9]+).rrd', it)
+        namepat = re.search('([a-f0-9]+).rrd', it)
         namestr = namepat.group(1)
         orrdhash[namestr] = namestr
     
@@ -311,7 +309,7 @@ for i in range(len(trange)):
 
 #
 md5key  = md5.new(str(time.time())).hexdigest()
-picname = '%s-$s.png' % ( remaddr, md5key )
+picname = '%s-%s.png' % ( remaddr, md5key )
 
 
 # draw all the pictures!
@@ -319,7 +317,7 @@ piclist = statpic.draw(picname)
 
 
 for pic in piclist:
-    nameofpic = picpath + pic
+    nameofpic = '%s/%s' % (picpath, pic)
     out = open(nameofpic, "r")
     allthepicture = out.read()
     sys.stdout.write(allthepicture)

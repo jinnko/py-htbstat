@@ -22,8 +22,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
-rcsid = '$Id: htbstat.py,v 1.11 2008/01/24 09:11:36 dima Exp $'
-
 import cgi
 
 import rrdtool
@@ -111,7 +109,7 @@ if devone != disabled:
     irrdcomment = {}
 
     for it in irrdlist:
-        namepat = re.search('([0-9]+:[0-9]+).rrd', it)
+        namepat = re.search('([a-f0-9]+:[a-f0-9]+).rrd', it)
         if namepat:
             namestr = namepat.group(1)
 
@@ -145,7 +143,7 @@ if devtwo != disabled:
     orrdhash = {}
     
     for it in orrdlist:
-        namepat = re.search('([0-9]+:[0-9]+).rrd', it)
+        namepat = re.search('([a-f0-9]+:[a-f0-9]+).rrd', it)
         namestr = namepat.group(1)
         orrdhash[namestr] = namestr
     
@@ -513,21 +511,20 @@ print """
 <HR>
 <TABLE border="0" width="90%%" align="center">
 <TR><TD>
-<SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="mailto:%s@%s.%s.%s">Dmytro O. Redchuk</A></SPAN><BR>
+<SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="mailto:%s@%s.%s">Dmytro O. Redchuk</A></SPAN><BR>
 <SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="http://www.volz.ua/">VOLZ Llc</A></SPAN><BR>
-""" % ("dmytro", "redchuck", "org", "ua")
+""" % ('brownian.box', 'gmail', 'com')
 
 # to get RCS Id:-)
 sample = iclasses[0]
 
-# print '<!-- '
-print """
-<TD align="right">
-    <SPAN class="rcsid">htbstat.py: %s</SPAN><BR>
-    <SPAN class="rcsid">HTBstat: %s</SPAN><BR>
-    <SPAN class="rcsid">STATpic: %s</SPAN><BR>
-""" % ( rcsid, sample.rcsid(), statpic.rcsid() )
-# print ' -->'
+#print """
+#<TD align="right">
+#    <SPAN class="rcsid">htbstat.py: %s</SPAN><BR>
+#    <SPAN class="rcsid">HTBstat: %s</SPAN><BR>
+#    <SPAN class="rcsid">STATpic: %s</SPAN><BR>
+#"""
+# % ( rcsid, sample.rcsid(), statpic.rcsid() )
 print '</TABLE>'
 
 # WOW! All is well.

@@ -22,8 +22,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
-rcsid = '$Id: dumpclass.py,v 1.9 2008/01/16 10:39:10 dima Exp $'
-
 import cgi
 
 import rrdtool
@@ -81,7 +79,7 @@ allclasses = []
 classes = {}
 
 for cls in clfiles:
-    namepat = re.search('([0-9]+:[0-9]+).pickle', cls)
+    namepat = re.search('([a-f0-9]+:[a-f0-9]+).pickle', cls)
     namestr = namepat.group(1)
     classes[namestr] = namestr
     classfile = open(cls, 'r')
@@ -197,15 +195,15 @@ print """
 <HR>
 <TABLE border="0" width="90%%" align="center">
 <TR><TD>
-<SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="mailto:%s@%s.%s.%s">Dmytro O. Redchuk</A></SPAN><BR>
+<SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="mailto:%s@%s.%s">Dmytro O. Redchuk</A></SPAN><BR>
 <SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="http://www.volz.ua/">VOLZ Llc</A></SPAN><BR>
-""" % ('dmytro', 'redchuck', 'org', 'ua')
+""" % ('brownian.box', 'gmail', 'com')
 
 # print '<!-- '
-print """
-<TD align="right">\n<SPAN class="rcsid">dumpclass.py: %s</SPAN><BR>
-<SPAN class="rcsid">HTBstat: %s</SPAN><BR>
-""" % ( rcsid, htb.rcsid() )
+#print """
+#<TD align="right">\n<SPAN class="rcsid">dumpclass.py: %s</SPAN><BR>
+#<SPAN class="rcsid">HTBstat: %s</SPAN><BR>
+#""" % ( rcsid, htb.rcsid() )
 # print ' -->'
 print '</TABLE>'
 

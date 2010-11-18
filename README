@@ -35,8 +35,11 @@ CGI scripts and processed further by some checkers.
 py-htbstat is a small set of scripts actually. Some part of functionality
 was separated into a python module, HTBstat.
 
-py-htbstat requires py-rrdtool (http://www.nongnu.org/py-rrdtool/,
-http://www2.ldc.net/~dor/py-rrdtool-0.2.1.spec)
+py-htbstat requires py-rrdtool (originally i've taken it from
+http://www.nongnu.org/py-rrdtool/, but it seems  that now any linux distro
+does have an "official" python-to-rrd interface, rrdpython --
+http://oss.oetiker.ch/rrdtool/prog/rrdpython.en.html -- in debian it is called
+python-rrdtool now).
 
 Below, in "Files" section, there are some descriptions and explanations.
 
@@ -102,8 +105,10 @@ HTBstat/
 	STATpic.py	-- this is a "picture module", contains a class
 			   which instantiates "HTB pictures" objects.
 py-htbstat-0.2.1.spec	-- attempt to provide you with a spec for rpm
-			   building :-)
-			   (I use ALT Linux, http://www.altlinux.org/)
+			   building (I used ALT Linux,
+			   http://www.altlinux.org/ when have created
+			   py-htbstat -- now this spec may be obsolete
+			   already)
 
 
 
@@ -171,7 +176,7 @@ VOLZ/LDC team.
 
 Please, do not blame me to much -- this is my the first Python code piece :-)
 
-Actually, I have been working (and I am working further) on another
-code -- HTB configurator -- and this monitoring-only scripts are much like
-side effect :)
+Actually, I have been working (and I am working further) on another code --
+HTB configurator -- and these monitoring-only scripts are much like side
+effect :)
 

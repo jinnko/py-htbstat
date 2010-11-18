@@ -22,8 +22,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
-rcsid = '$Id: htbcheck.py,v 1.8 2008/01/17 15:36:22 dima Exp $'
-
 import cgi
 
 import os
@@ -282,16 +280,16 @@ print """
 <HR>
 <TABLE border="0" width="90%%" align="center">
 <TR><TD>
-<SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="mailto:%s@%s.%s.%s">Dmytro O. Redchuk</A></SPAN><BR>
+<SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="mailto:%s@%s.%s">Dmytro O. Redchuk</A></SPAN><BR>
 <SPAN class="rcsid">Copyright (c) 2005&ndash;2008 <A href="http://www.volz.ua/">VOLZ Llc</A></SPAN><BR>
-""" % ('dmytro', 'redchuck', 'org', 'ua')
+""" % ('brownian.box', 'gmail', 'com')
 
 # print '<!-- '
-print """
-<TD align="right">
-    <SPAN class="rcsid">htbcheck.py: %s</SPAN><BR>
-    <SPAN class="rcsid">HTBstat: %s</SPAN><BR>
-""" % ( rcsid, rootclass.rcsid() )
+# print """
+#<TD align="right">
+#    <SPAN class="rcsid">htbcheck.py: %s</SPAN><BR>
+#    <SPAN class="rcsid">HTBstat: %s</SPAN><BR>
+#""" % ( rcsid, rootclass.rcsid() )
 # print ' -->'
 print '</TABLE>'
 
