@@ -57,7 +57,7 @@ class HTBstat:
         ct = re.compile('ctokens: ([-]*[0-9]+)')
         bu = re.compile('burst ([0-9]+)([k]*b)')
         cb = re.compile('cburst ([0-9]+)([k]*b)')
-        ba = re.compile('backlog ([0-9]+b)* ([0-9])+p')
+        ba = re.compile('backlog ([0-9]+b)* ([0-9]+)p')
 
         # will raise and exception when forced to init
         # with malformed `line':
