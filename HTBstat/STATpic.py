@@ -24,6 +24,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
+import re
 import rrdtool
 
 class STATpic:
@@ -57,6 +58,8 @@ class STATpic:
         # picture dimensions:
         self.__height = 130
         self.__width  = 500
+
+        self.__do_sum = False
 
         return
 
@@ -138,98 +141,278 @@ class STATpic:
             self.__pkts_forcelim = forcelim
         return self.__pkts_forcelim
 
+    def do_sum(self, do_sum=False):
+      self.__do_sum = do_sum
+      return self.__do_sum
+
     #
     #
     def draw(self, picname):
-        """Draws pictures, for every class, every timerange,
-        every unit specified.
+      """Draws pictures, for every class, every timerange,
+      every unit specified.
         
-        Takes as argument picture name `suffix'. Pictures will be named
-        <picno>-<classno>-<suffix>, where
-        <picno> is a picture number,
-        <classno> is a class number in self.__htbclasses list.
+      Takes as argument picture name `suffix'. Pictures will be named
+      <picno>-<classno>-<suffix>, where
+      <picno> is a picture number,
+      <classno> is a class number in self.__htbclasses list.
         
-        Returns list of picture names."""
+      Returns list of picture names."""
 
-        piclist = []
-        # for every timerange:
-        for num in range(len(self.__htbclasses)):
-            #
-            # for every htbclass in list:
-            for (start, end) in self.__timerange:
-                for unit in self.__units:
-                    timenum = len(piclist)
+      piclist = []
+      # for every timerange:
+      if not self.__do_sum:
+        for num, (htb, rrdone, rrdtwo, comment) in enumerate(self.__htbclasses):
+          if rrdone == None:
+            rrdone = rrdtwo
+            rrdtwo = None
 
-                    picture = str(timenum)+'-'+str(num)+'-'+picname
+          #
+          # for every htbclass in list:
+          for (start, end) in self.__timerange:
+            for unit in self.__units:
+              timenum = len(piclist)
 
-                    (htb, rrdone, rrdtwo, comment) = self.__htbclasses[num]
+              picture = str(timenum)+'-'+str(num)+'-'+picname
 
-                    if rrdone == None:
-                        rrdone = rrdtwo
-                        rrdtwo = None
+              grapharg = [
+                  '%s/%s' % (self.__picpath, picture),
+                  '-s -'+str(start),
+                  '-e -'+str(end),
+                  '-b 1024',
+                  '-l 0',
+                  '-h '+str(self.__height),
+                  '-w '+str(self.__width),
+                  # '--alt-y-mrtg',
+                ]
+              if unit == 'packets':
+                grapharg.extend([
+                    '-v bits per sec',
+                    '-u '+str(self.__pkts_upperlim),
+                  ])
+                #
+                # force upper limit, if needed:
+                if self.__pkts_forcelim == 1:
+                  grapharg.extend([ '-r' ])
 
-                    grapharg = [ '%s/%s' % ( self.__picpath, picture),
-                        '-s -'+str(start),
-                        '-e -'+str(end),
-                        '-b 1024',
-                        '-l 0',
-                        '-h '+str(self.__height),
-                        '-w '+str(self.__width),
-                        # '--alt-y-mrtg',
-                        ]
-                    if unit == 'packets':
-                        grapharg.extend([ '-v bits per sec',
-                            '-u '+str(self.__pkts_upperlim) ])
-                        #
-                        # force upper limit, if needed:
-                        if self.__pkts_forcelim == 1: grapharg.extend([ '-r' ])
+                grapharg.extend([
+                    '-v pkts per sec',
+                    '-t class '+str(htb.clid())+' - '+comment+' - packects ('+self.__CF+')',
+                    'DEF:pkts='+rrdone+':packets:'+self.__CF, 
+                    'DEF:drop='+rrdone+':dropped:'+self.__CF, 
+                    'DEF:lend='+rrdone+':lended:'+self.__CF,
+                    'DEF:borr='+rrdone+':borrowed:'+self.__CF,
+                    'DEF:back='+rrdone+':backlog:'+self.__CF,
+                    'AREA:back#CFCFCF:backlog',
+                    'LINE1:pkts#55CC55:pkts',
+                    'LINE1:drop#DD3333:drops',
+                    'LINE1:lend#000000:lend',
+                    'LINE1:borr#5555CC:borrow',
+                  ])
+              elif unit == 'tokens':
+                grapharg.extend([
+                    '-v toks per sec',
+                    '-t class '+str(htb.clid())+' - '+comment+' - tokens ('+self.__CF+')',
+                    'DEF:toks='+rrdone+':tokens:'+self.__CF, 
+                    'DEF:ctoks='+rrdone+':ctokens:'+self.__CF, 
+                    'HRULE:0#000000',
+                    'LINE1:toks#55CC55:tokens',
+                    'LINE1:ctoks#DD3333:ctokens',
+                  ])
+              else:        # if bytes:
+                grapharg.extend([
+                    '-v bits per sec',
+                    '-u '+str(self.__ceil_upperlim * htb.ceil()),
+                    '-t class '+str(htb.clid())+' - '+comment+' - bps ('+self.__CF+')',
+                  ])
+                #
+                # force upper limit, if needed:
+                if self.__ceil_forcelim == 1:
+                  grapharg.extend([ '-r' ])
 
-                        grapharg.extend([ '-v pkts per sec',
-                            '-t class '+str(htb.clid())+' - '+comment+' - packects ('+self.__CF+')',
-                            'DEF:pkts='+rrdone+':packets:'+self.__CF, 
-                            'DEF:drop='+rrdone+':dropped:'+self.__CF, 
-                            'DEF:lend='+rrdone+':lended:'+self.__CF,
-                            'DEF:borr='+rrdone+':borrowed:'+self.__CF,
-                            'DEF:back='+rrdone+':backlog:'+self.__CF,
-                            'AREA:back#CFCFCF:backlog',
-                            'LINE1:pkts#55CC55:pkts',
-                            'LINE1:drop#DD3333:drops',
-                            'LINE1:lend#000000:lend',
-                            'LINE1:borr#5555CC:borrow' ])
-                    elif unit == 'tokens':
-                        grapharg.extend([ '-v toks per sec',
-                            '-t class '+str(htb.clid())+' - '+comment+' - tokens ('+self.__CF+')',
-                            'DEF:toks='+rrdone+':tokens:'+self.__CF, 
-                            'DEF:ctoks='+rrdone+':ctokens:'+self.__CF, 
-                            'HRULE:0#000000',
-                            'LINE1:toks#55CC55:tokens',
-                            'LINE1:ctoks#DD3333:ctokens' ])
-                    else:        # if bytes:
-                        grapharg.extend([ '-v bits per sec',
-                            '-u '+str(self.__ceil_upperlim * htb.ceil()),
-                            '-t class '+str(htb.clid())+' - '+comment+' - bps ('+self.__CF+')' ])
-                        #
-                        # force upper limit, if needed:
-                        if self.__ceil_forcelim == 1: grapharg.extend([ '-r' ])
+                if rrdtwo != None:
+                  grapharg.extend([
+                      'DEF:twobytes='+rrdtwo+':bytes:'+self.__CF,
+                      'CDEF:twobits=twobytes,8,*',
+                      'AREA:twobits#55CC55:received',
+                    ])
+                grapharg.extend([
+                    'DEF:onebytes='+rrdone+':bytes:'+self.__CF,
+                    'CDEF:onebits=onebytes,8,*',
+                    'LINE1:onebits#5555CC:transmitted',
+                  ])
 
-                        if rrdtwo != None:
-                            grapharg.extend([ 'DEF:twobytes='+rrdtwo+':bytes:'+self.__CF,
-                                'CDEF:twobits=twobytes,8,*',
-                                'AREA:twobits#55CC55:received' ])
-                        grapharg.extend([ 'DEF:onebytes='+rrdone+':bytes:'+self.__CF,
-                                'CDEF:onebits=onebytes,8,*',
-                                'LINE1:onebits#5555CC:transmitted' ])
+                if self.__needlimits == 'on':
+                  grapharg.extend([
+                      'DEF:onerate='+rrdone+':rate:'+self.__CF,
+                      'DEF:oneceil='+rrdone+':ceil:'+self.__CF,
+                    ])
+                  grapharg.extend([
+                      'CDEF:oneratek=onerate,1.024,*',
+                      'CDEF:oneceilk=oneceil,1.024,*',
+                      'LINE1:oneratek#000000:irate',
+                      'LINE1:oneceilk#DD3333:iceil',
+                    ])
 
-                        if self.__needlimits == 'on':
-                            grapharg.extend([ 'DEF:onerate='+rrdone+':rate:'+self.__CF,
-                                'DEF:oneceil='+rrdone+':ceil:'+self.__CF ])
-                            grapharg.extend([
-                                'CDEF:oneratek=onerate,1.024,*',
-                                'CDEF:oneceilk=oneceil,1.024,*',
-                                'LINE1:oneratek#000000:irate',
-                                'LINE1:oneceilk#DD3333:iceil' ])
+              rrdtool.graph(*grapharg)
+              piclist.append(picture)
 
-                    rrdtool.graph(*grapharg)
-                    piclist.append(picture)
-        return piclist
+
+      else:
+        # GRAPH SUM of those:
+        """
+        for num, (htb, rrdone, rrdtwo, comment) in enumerate(self.__htbclasses):
+          if rrdone == None:
+            rrdone = rrdtwo
+            rrdtwo = None
+        """
+
+        #
+        # for every htbclass in list:
+        for (start, end) in self.__timerange:
+          for unit in self.__units:
+            timenum = len(piclist)
+
+            picture = str(timenum)+'--sum--'+picname
+
+            grapharg = [
+                '%s/%s' % (self.__picpath, picture),
+                '-s -'+str(start),
+                '-e -'+str(end),
+                '-b 1024',
+                '-l 0',
+                '-h '+str(self.__height),
+                '-w '+str(self.__width),
+                # '--alt-y-mrtg',
+              ]
+
+
+            if unit == 'packets':
+              grapharg.extend([
+                  '-v pkts per sec',
+                  # '-t class '+str(htb.clid())+' - '+comment+' - packects ('+self.__CF+')',
+                  '-u '+str(self.__pkts_upperlim),
+                ])
+              #
+              # force upper limit, if needed:
+              if self.__pkts_forcelim == 1:
+                grapharg.extend([ '-r' ])
+
+            elif unit == 'tokens':
+              grapharg.extend([
+                  '-v toks per sec',
+                  # '-t class '+str(htb.clid())+' - '+comment+' - tokens ('+self.__CF+')',
+                ])
+
+            else:        # if bytes:
+              grapharg.extend([
+                  '-v bits per sec',
+                  # '-u '+str(self.__ceil_upperlim), # * htb.ceil()),
+                  # '-t class '+str(htb.clid())+' - '+comment+' - bps ('+self.__CF+')',
+                ])
+              #
+              # force upper limit, if needed:
+              if self.__ceil_forcelim == 1:
+                grapharg.extend([ '-r' ])
+
+
+            maxceil = 0
+            vardefs_one = dict()
+            vardefs_two = dict()
+
+            for num, (htb, rrdone, rrdtwo, comment) in enumerate(self.__htbclasses):
+              if rrdone == None:
+                rrdone = rrdtwo
+                rrdtwo = None
+
+              # FIXME? root id removing hardcoded (root id is now "1:")
+              # print '%s<br/>' % htb.clid()[2:]
+
+              if unit == 'packets':
+                # FIXME: that's because we cannot draw packets or tokens now:
+                pass
+                """
+                grapharg.extend([
+                    'DEF:pkts='+rrdone+':packets:'+self.__CF, 
+                    'DEF:drop='+rrdone+':dropped:'+self.__CF, 
+                    'DEF:lend='+rrdone+':lended:'+self.__CF,
+                    'DEF:borr='+rrdone+':borrowed:'+self.__CF,
+                    'DEF:back='+rrdone+':backlog:'+self.__CF,
+                    'AREA:back#CFCFCF:backlog',
+                    'LINE1:pkts#55CC55:pkts',
+                    'LINE1:drop#DD3333:drops',
+                    'LINE1:lend#000000:lend',
+                    'LINE1:borr#5555CC:borrow',
+                  ])
+                """
+              elif unit == 'tokens':
+                # FIXME: that's because we cannot draw packets or tokens now:
+                pass
+                """
+                grapharg.extend([
+                    'DEF:toks='+rrdone+':tokens:'+self.__CF, 
+                    'DEF:ctoks='+rrdone+':ctokens:'+self.__CF, 
+                    'HRULE:0#000000',
+                    'LINE1:toks#55CC55:tokens',
+                    'LINE1:ctoks#DD3333:ctokens',
+                  ])
+                """
+
+              else:        # if bytes:
+                if rrdtwo != None:
+                  vardefs_two['%s-twobytes'%(htb.clid()[2:])] = '%s:bytes:%s' % (rrdtwo, self.__CF)
+
+                vardefs_one['%s-onebytes'%(htb.clid()[2:])] = '%s:bytes:%s' % (rrdone, self.__CF)
+                maxceil = max(maxceil, htb.ceil())
+
+            # FIXME: that's because we cannot draw packets or tokens now:
+            if not vardefs_two and not vardefs_one:
+              return []
+
+
+            if vardefs_two:
+              for k, v in vardefs_two.items():
+                grapharg.append( 'DEF:%s=%s' % (k, v) )
+
+              grapharg.append('CDEF:twobytes=%s%s' % (
+                      ','.join([
+                            '%s,UN,0,%s,IF' % (k, k)
+                                for k, v in vardefs_two.items()
+                      ]),
+                      len(vardefs_two.keys()) - 1 \
+                        and ',+'*(len(vardefs_two.keys()) - 1) \
+                        or ''
+                    )
+                )
+
+              grapharg.extend([
+                  'CDEF:twobits=twobytes,8,*',
+                  'AREA:twobits#55CC55:received',
+                ])
+
+            for k, v in vardefs_one.items():
+              grapharg.append( 'DEF:%s=%s' % (k, v) )
+
+            grapharg.append('CDEF:onebytes=%s%s' % (
+                    ','.join([
+                          '%s,UN,0,%s,IF' % (k, k)
+                              for k, v in vardefs_one.items()
+                    ]),
+                    len(vardefs_one.keys()) - 1 \
+                      and ',+'*(len(vardefs_one.keys()) - 1) \
+                      or ''
+                  )
+              )
+
+            grapharg.extend([
+                'CDEF:onebits=onebytes,8,*',
+                'LINE1:onebits#5555CC:transmitted',
+                '-u '+str(self.__ceil_upperlim * maxceil),
+              ])
+
+
+            rrdtool.graph(*grapharg)
+            piclist.append(picture)
+
+
+      return piclist
 
